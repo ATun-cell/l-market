@@ -1,0 +1,5 @@
+spring:
+  config:
+    name: l-market-app
+  profiles:
+    active: dev
