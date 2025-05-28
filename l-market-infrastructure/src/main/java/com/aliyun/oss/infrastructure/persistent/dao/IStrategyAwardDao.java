@@ -1,6 +1,9 @@
 package com.aliyun.oss.infrastructure.persistent.dao;
 
+import com.aliyun.oss.infrastructure.persistent.po.StrategyAward;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author 000
@@ -9,4 +12,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface IStrategyAwardDao {
+    List<StrategyAward> queryStrategyAwardListByStrategyId(Long strategyId);
 }
