@@ -1,6 +1,9 @@
 package com.aliyun.oss.infrastructure.persistent.dao;
 
+import com.aliyun.oss.infrastructure.persistent.po.StrategyRule;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author 000
@@ -9,4 +12,11 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface IStrategyRuleDao {
+
+    List<StrategyRule> queryStrategyRuleList();
+
+    StrategyRule queryStrategyRule(StrategyRule strategyRuleReq);
+
+
+    String queryStrategyRuleValue(StrategyRule strategyRule);
 }

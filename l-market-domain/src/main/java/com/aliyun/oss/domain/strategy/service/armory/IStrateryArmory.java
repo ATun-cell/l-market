@@ -7,9 +7,13 @@ package com.aliyun.oss.domain.strategy.service.armory;
  */
 public interface IStrateryArmory {
 
-    //装配策略概率分布
-    void assembleLotteryStrategy(Long strategyId);
-    //获取策略
-    Integer getRandomAwardId(Long strategyId);
 
+
+
+
+    /**
+     * 获取抽奖策略装配结果
+     * @param strategyId 策略ID
+     */
+    boolean assembleLotteryStrategy(Long strategyId);
 }

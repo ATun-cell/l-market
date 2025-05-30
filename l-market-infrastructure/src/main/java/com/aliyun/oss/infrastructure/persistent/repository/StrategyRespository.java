@@ -1,9 +1,15 @@
 package com.aliyun.oss.infrastructure.persistent.repository;
 
 import com.aliyun.oss.domain.strategy.model.entity.StrategyAwardEntity;
+import com.aliyun.oss.domain.strategy.model.entity.StrategyEntity;
+import com.aliyun.oss.domain.strategy.model.entity.StrategyRuleEntity;
 import com.aliyun.oss.domain.strategy.repository.IStrategyRepository;
 import com.aliyun.oss.infrastructure.persistent.dao.IStrategyAwardDao;
+import com.aliyun.oss.infrastructure.persistent.dao.IStrategyDao;
+import com.aliyun.oss.infrastructure.persistent.dao.IStrategyRuleDao;
+import com.aliyun.oss.infrastructure.persistent.po.Strategy;
 import com.aliyun.oss.infrastructure.persistent.po.StrategyAward;
+import com.aliyun.oss.infrastructure.persistent.po.StrategyRule;
 import com.aliyun.oss.infrastructure.persistent.redis.IRedisService;
 import com.aliyun.oss.types.common.Constants;
 import lombok.val;
@@ -23,6 +29,12 @@ public class StrategyRespository implements IStrategyRepository {
 
     @Resource
     private IStrategyAwardDao strategyAwardDao;
+
+    @Resource
+    private IStrategyDao strategyDao;
+
+    @Resource
+    private IStrategyRuleDao strategyRuleDao;
 
     @Resource
     private IRedisService redisService;
@@ -56,9 +68,9 @@ public class StrategyRespository implements IStrategyRepository {
     }
 
     @Override
-    public void storeSrategyAwardSearchRateTables(Long strategyId, BigDecimal rangeRate, HashMap<Integer, Integer> shuffleStrategyAwardSearchTables) {
-        redisService.setValue(Constants.RedisKey.STRATEGY_RATE_RANGE_KEY + strategyId, rangeRate.intValue());
-        Map<Integer, Integer> cacheRateTables = redisService.getMap(Constants.RedisKey.STRATEGY_RATE_TABLE_KEY + strategyId);
+    public void storeSrategyAwardSearchRateTables(String key, BigDecimal rangeRate, HashMap<Integer, Integer> shuffleStrategyAwardSearchTables) {
+        redisService.setValue(Constants.RedisKey.STRATEGY_RATE_RANGE_KEY + key, rangeRate.intValue());
+        Map<Integer, Integer> cacheRateTables = redisService.getMap(Constants.RedisKey.STRATEGY_RATE_TABLE_KEY + key);
         cacheRateTables.putAll(shuffleStrategyAwardSearchTables);
     }
 
@@ -68,8 +80,58 @@ public class StrategyRespository implements IStrategyRepository {
     }
 
     @Override
-    public Integer getStrategyAwardAssemble(Long strategyId, int rateKey) {
-        return redisService.getFromMap(Constants.RedisKey.STRATEGY_RATE_TABLE_KEY + strategyId, rateKey);
+    public Integer getRateRange(String key) {
+        return redisService.getValue(Constants.RedisKey.STRATEGY_RATE_RANGE_KEY + key);
     }
+
+    @Override
+    public Integer getStrategyAwardAssemble(String key, Integer rateKey) {
+        return redisService.getFromMap(Constants.RedisKey.STRATEGY_RATE_TABLE_KEY + key, rateKey);
+    }
+
+    @Override
+    public StrategyEntity queryStrategyEntityByStrategyId(Long strategyId) {
+        // 优先从缓存获取
+        String cacheKey = Constants.RedisKey.STRATEGY_KEY + strategyId;
+        StrategyEntity strategyEntity = redisService.getValue(cacheKey);
+        if (null != strategyEntity) return strategyEntity;
+        Strategy strategy = strategyDao.queryStrategyByStrategyId(strategyId);
+        strategyEntity = StrategyEntity.builder()
+                .strategyId(strategy.getStrategyId())
+                .strategyDesc(strategy.getStrategyDesc())
+                .ruleModels(strategy.getRuleModels())
+                .build();
+        redisService.setValue(cacheKey, strategyEntity);
+        return strategyEntity;
+    }
+
+    @Override
+    public StrategyRuleEntity queryStrategyRule(Long strategyId, String ruleModel) {
+        StrategyRule strategyRuleReq = new StrategyRule();
+        strategyRuleReq.setStrategyId(strategyId);
+        strategyRuleReq.setRuleModel(ruleModel);
+        StrategyRule strategyRuleRes = strategyRuleDao.queryStrategyRule(strategyRuleReq);
+        return StrategyRuleEntity.builder()
+                .strategyId(strategyRuleRes.getStrategyId())
+                .awardId(strategyRuleRes.getAwardId())
+                .ruleType(strategyRuleRes.getRuleType())
+                .ruleModel(strategyRuleRes.getRuleModel())
+                .ruleValue(strategyRuleRes.getRuleValue())
+                .ruleDesc(strategyRuleRes.getRuleDesc())
+                .build();
+
+    }
+
+    @Override
+    public String queryStrategyRuleValue(Long strategyId, Integer awardId, String ruleModel) {
+        StrategyRule strategyRule = new StrategyRule();
+        strategyRule.setStrategyId(strategyId);
+        strategyRule.setAwardId(awardId);
+        strategyRule.setRuleModel(ruleModel);
+        return strategyRuleDao.queryStrategyRuleValue(strategyRule);
+
+    }
+
+
 
 }
