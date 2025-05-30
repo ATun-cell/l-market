@@ -1,7 +1,8 @@
 package com.aliyun.oss.test.domain;
 
+import com.aliyun.oss.domain.strategy.service.armory.IStrategyArmory;
 import com.aliyun.oss.domain.strategy.service.armory.IStrategyDispatch;
-import com.aliyun.oss.domain.strategy.service.armory.IStrateryArmory;
+import com.aliyun.oss.domain.strategy.service.armory.IStrategyArmory;
 import com.aliyun.oss.infrastructure.persistent.redis.IRedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -25,7 +26,7 @@ import java.util.*;
 public class StrategyTest {
 
     @Resource
-    private IStrateryArmory strategyArmory;
+    private IStrategyArmory strategyArmory;
 
     @Resource
     private IStrategyDispatch strategyDispatch;

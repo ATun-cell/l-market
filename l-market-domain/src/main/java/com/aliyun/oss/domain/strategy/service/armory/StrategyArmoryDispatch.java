@@ -20,7 +20,7 @@ import java.util.*;
  * @create 2025/05/28
  */
 @Service
-public class StrategyArmoryDispatch implements IStrateryArmory, IStrategyDispatch {
+public class StrategyArmoryDispatch implements IStrategyArmory, IStrategyDispatch {
 
     @Resource
     private IStrategyRepository strategyRepository;

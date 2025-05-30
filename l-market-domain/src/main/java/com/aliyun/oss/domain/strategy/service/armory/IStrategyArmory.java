@@ -5,7 +5,7 @@ package com.aliyun.oss.domain.strategy.service.armory;
  * @description 策略装配兵工厂，负责初始化策略计算
  * @create 2025/05/27
  */
-public interface IStrateryArmory {
+public interface IStrategyArmory {
 
 
 

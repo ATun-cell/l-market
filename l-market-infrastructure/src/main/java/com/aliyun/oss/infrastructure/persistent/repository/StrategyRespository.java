@@ -3,6 +3,7 @@ package com.aliyun.oss.infrastructure.persistent.repository;
 import com.aliyun.oss.domain.strategy.model.entity.StrategyAwardEntity;
 import com.aliyun.oss.domain.strategy.model.entity.StrategyEntity;
 import com.aliyun.oss.domain.strategy.model.entity.StrategyRuleEntity;
+import com.aliyun.oss.domain.strategy.model.valobj.StrategyAwardRuleModelVO;
 import com.aliyun.oss.domain.strategy.repository.IStrategyRepository;
 import com.aliyun.oss.infrastructure.persistent.dao.IStrategyAwardDao;
 import com.aliyun.oss.infrastructure.persistent.dao.IStrategyDao;
@@ -132,6 +133,14 @@ public class StrategyRespository implements IStrategyRepository {
 
     }
 
+    @Override
+    public StrategyAwardRuleModelVO queryStrategyAwardRuleModelVO(Long strategyId, Integer awardId) {
+        StrategyAward strategyAward = new StrategyAward();
+        strategyAward.setStrategyId(strategyId);
+        strategyAward.setAwardId(awardId);
+        String ruleModels = strategyAwardDao.queryStrategyAwardRuleModels(strategyAward);
+        return StrategyAwardRuleModelVO.builder().ruleModels(ruleModels).build();
+    }
 
 
 }

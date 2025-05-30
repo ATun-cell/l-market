@@ -36,7 +36,39 @@ public class DefaultRaffleStrategy extends AbstractRaffleStrategy {
     }
 
     @Override
+    protected RuleActionEntity<RuleActionEntity.RaffleCenterEntity> doCheckRaffleCenterLogic(RaffleFactorEntity raffleFactorEntity, String... logics) {
+        if (logics == null || 0 == logics.length) return RuleActionEntity.<RuleActionEntity.RaffleCenterEntity>builder()
+                .code(RuleLogicCheckTypeVO.ALLOW.getCode())
+                .info(RuleLogicCheckTypeVO.ALLOW.getInfo())
+                .build();
+
+        Map<String, IRuleLogicFilter<RuleActionEntity.RaffleCenterEntity>> logicFilterGroup = logicFactory.openLogicFilter();
+        RuleActionEntity<RuleActionEntity.RaffleCenterEntity> ruleActionEntity = null;
+
+        //此时放行过来的只有抽奖中规则
+        for (String logic : logics) {
+            IRuleLogicFilter<RuleActionEntity.RaffleCenterEntity> raffleCenterLogicFilter = logicFilterGroup.get(logic);
+            RuleMatterEntity ruleMatterEntity = new RuleMatterEntity();
+            ruleMatterEntity.setStrategyId(raffleFactorEntity.getStrategyId());
+            ruleMatterEntity.setUserId(raffleFactorEntity.getUserId());
+            ruleMatterEntity.setAwardId(raffleFactorEntity.getAwardId());
+            ruleMatterEntity.setRuleModel(logic);
+            ruleActionEntity = raffleCenterLogicFilter.filter(ruleMatterEntity);
+            log.info("抽奖中规则过滤 userId: {} ruleModel: {} code: {} info: {}", raffleFactorEntity.getUserId(), logic, ruleActionEntity.getCode(), ruleActionEntity.getInfo());
+            if (!ruleActionEntity.getCode().equals(RuleLogicCheckTypeVO.ALLOW.getCode())) {
+                return ruleActionEntity;
+            }
+        }
+        return ruleActionEntity;
+    }
+
+    @Override
     protected RuleActionEntity<RuleActionEntity.RaffleBeforeEntity> doCheckRaffleBeforeLogic(RaffleFactorEntity raffleFactorEntity, String... logics) {
+        if (logics == null || 0 == logics.length) return RuleActionEntity.<RuleActionEntity.RaffleBeforeEntity>builder()
+                .code(RuleLogicCheckTypeVO.ALLOW.getCode())
+                .info(RuleLogicCheckTypeVO.ALLOW.getInfo())
+                .build();
+
         Map<String, IRuleLogicFilter<RuleActionEntity.RaffleBeforeEntity>> logicFilterGroup = logicFactory.openLogicFilter();
         // 黑名单规则优先过滤
         String ruleBackList = Arrays.stream(logics)
